@@ -2,7 +2,7 @@ from abc import ABC
 from typing import Optional
 import random
 
-DEBUG = False
+DEBUG = True
 
 WHITE:int = 7
 BLACK:int = 8
@@ -14,6 +14,28 @@ COLOR_OPTS:list[int] = [WHITE, BLACK, RED, YELLOW, BLUE]
 
 TEXT_OPTS:list[str] = ["Abort", "Detonate", "Hold", "Press"]
 INDICATOR_OPTS:list[str] = ["CAR", "FRK"]
+
+SYMBOL_OPTS:list[str] = ["copyright", "filledstar", "hollowstar", "smileyface", 
+                         "doublek", "omega", "squidknife", "pumpkin", "hookn", 
+                         "six", "squigglyn", "at", "ae", "meltedthree", "euro", 
+                         "nwithhat", "dragon", "questionmark", "paragraph", 
+                         "rightc", "leftc", "pitchfork", "cursive", "tracks", 
+                         "balloon", "upsidedowny", "bt"]
+
+
+column1:list[str] = ["balloon", "at", "upsidedowny", "squigglyn", 
+                        "squidknife", "hookn", "leftc"]
+column2:list[str] = ["euro", "balloon", "leftc", "cursive", "hollowstar",
+                        "hookn", "questionmark"]
+column3:list[str] = ["copyright", "pumpkin", "cursive", "doublek", 
+                        "meltedthree", "upsidedowny", "hollowstar"]
+column4:list[str] = ["six", "paragraph", "bt", "squidknife", "doublek", 
+                        "questionmark", "smileyface"]
+column5:list[str] = ["pitchfork", "smileyface", "bt", "rightc", 
+                        "paragraph", "dragon", "filledstar"]
+column6:list[str] = ["six", "euro", "tracks", "ae", "pitchfork", 
+                        "nwithhat", "omega"]
+
 
 class Module(ABC):
     def __init__(self):
@@ -218,10 +240,65 @@ class Button(Module):
         
 
 class Keypad(Module):
+    strikes:int
     moves: int
-    def __init__(self):
+    symbols:list[str]
+    cur_column:list[str]
+    deactivated: bool
+    def __init__(self, strikes:int = 2):
+        self.strikes = strikes
         self.moves = 1
-        #print("this is a Keypad module")
+        self.symbols = []
+        self.cur_column = random.choice([column1, column2, column3, column4, 
+                                        column5, column6])
+        while len(self.symbols) < 4:
+            new_symbol:str = random.choice(self.cur_column)
+            if new_symbol not in self.symbols:
+                self.symbols.append(new_symbol)
+        self.deactivated = False
+        
+
+    def present_keypad(self) -> None:
+        print(f"Symbols: {self.symbols}")
+        print()
+
+    def correct_sequence(self) -> list[str]:
+        sequence:list[str] = []
+        
+        correct_column:int = 0
+        if self.symbols[0] in column1 and self.symbols[1] in column1 and \
+            self.symbols[2] in column1 and self.symbols[3] in column1:
+            correct_column = column1
+        elif self.symbols[0] in column2 and self.symbols[1] in column2 and \
+            self.symbols[2] in column2 and self.symbols[3] in column2:
+            correct_column = column2
+        elif self.symbols[0] in column3 and self.symbols[1] in column3 and \
+            self.symbols[2] in column3 and self.symbols[3] in column3:
+            correct_column = column3
+        elif self.symbols[0] in column4 and self.symbols[1] in column4 and \
+            self.symbols[2] in column4 and self.symbols[3] in column4:
+            correct_column = column4
+        elif self.symbols[0] in column5 and self.symbols[1] in column5 and \
+            self.symbols[2] in column5 and self.symbols[3] in column5:
+            correct_column = column5
+        else:
+            correct_column = column6
+        
+        for symbol in correct_column:
+            if symbol in self.symbols:
+                sequence.append(symbol)
+        
+        if DEBUG:
+            print(f"correct column: {correct_column}")
+            print()
+            print(f"correct sequence: {sequence}")
+            print()
+        return sequence
+    
+
+    def get_symbol_opts(self):
+        return SYMBOL_OPTS
+
 
 class SimonSays(Module):
     moves: int
